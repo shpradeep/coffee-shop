@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 
 class ProductDetailsController extends Controller
 {
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        return ProductDetails::all();
+    }
+
     /**
      * Show the product details for given product.
      */

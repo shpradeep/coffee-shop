@@ -21,8 +21,9 @@ class SalesRecordsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'quantity'    => 'required',
-            'unit_cost'   => 'required',
+            'quantity' => 'required',
+            'product_id' => 'required',
+            'unit_cost' => 'required',
             'record_sale' => 'required'
         ]);
 
@@ -35,9 +36,12 @@ class SalesRecordsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(SalesRecords $salesRecords)
+    public function show($id)
     {
-        return $salesRecords;
+        return SalesRecords::where('product_id', $id)
+            ->orderBy('id')
+            ->take(10)
+            ->get();
     }
 
     /**
@@ -46,13 +50,14 @@ class SalesRecordsController extends Controller
     public function update(Request $request, SalesRecords $salesRecords)
     {
         $request->validate([
-            'quantity'    => 'required',
-            'unit_cost'   => 'required',
+            'quantity' => 'required',
+            'product_id' => 'required',
+            'unit_cost' => 'required',
             'record_sale' => 'required'
         ]);
 
         $salesRecords->update($request->all());
-        return response(content:'', status:200);
+        return response(content: '', status: 200);
     }
 
     /**
@@ -61,6 +66,17 @@ class SalesRecordsController extends Controller
     public function destroy(SalesRecords $salesRecords)
     {
         $salesRecords->delete();
-        return response(content:'', status:204);
+        return response(content: '', status: 204);
+    }
+
+    /**
+     * Get sales by product
+     */
+    public function find(string $id)
+    {
+        return SalesRecords::where('product_id', $id)
+            ->orderBy('id')
+            ->take(10)
+            ->get();
     }
 }

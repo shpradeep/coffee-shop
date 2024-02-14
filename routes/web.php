@@ -30,4 +30,6 @@ Route::get('/shipping-partners', function () {
 
 Route::get('/product/{id}', [ProductDetailsController::class, 'show']);
 
+Route::get('/products', [ProductDetailsController::class, 'index']);
+
 require __DIR__.'/auth.php';

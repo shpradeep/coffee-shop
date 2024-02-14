@@ -1,37 +1,46 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-8 card-wid">
                 <div class="card">
                     <div class="card-header">
-                            <div class="input-group">
-                                <div v-bind:class="'col-md-3 mb-3 sales-tag'">
-                                    <label for="validationCustom01">Quantity</label>
-                                    <input type="text" v-model="items.sale_quantity" class="form-control border border-dark" id="validationCustom01" required>
-                                    <div class="valid-feedback">
-                                        Looks good!
-                                    </div>
-                                </div>
-                                <div v-bind:class="'col-md-3 mb-3 sales-tag'">
-                                    <label for="validationCustom02">Unit Cost (£)</label>
-                                    <input type="text" v-model="items.per_unit_cost" class="form-control border border-dark" id="validationCustom02" required>
-                                    <div class="valid-feedback">
-                                        Looks good!
-                                    </div>
-                                </div>
-                                <div v-bind:class="'col-md-3 mb-3 sales-tag'">
-                                    <label for="validationCustom03">Selling Price</label>
-
-                                    <span id="validationCustom03" v-bind:class="span_selling_price">{{ selling_price }}</span>
-                                    <div class="valid-feedback">
-                                        Looks good!
-                                    </div>
-                                </div>
-                                <div v-bind:class="'col-md-3 mb-3 sales-tag'">
-                                    <label for="right-panel-link"></label>
-                                    <button id="right-panel-link" class="btn btn-primary" v-on:click="save">Record Sale</button>
+                        <div class="input-group">        
+                            <div v-bind:class="'col-md-3 mb-3 sales-tag'">
+                                <label for="product-options">Product</label>
+                                <select class="form-select" id="product-options" @change="onChangeProduct($event)" v-model="product_id" aria-label="Disabled select example">
+                                    <option class="form-control" v-for="item in products" :key="item.id" v-bind:value="item.id">{{item.product_name}}</option>
+                                </select>
+                                <div class="valid-feedback">
+                                    Looks good!
                                 </div>
                             </div>
+                            <div v-bind:class="'col-md-2 mb-3 sales-tag'">
+                                <label for="validationCustom01">Quantity</label>
+                                <input type="text" v-model="items.sale_quantity" class="form-control border border-dark" id="validationCustom01" required>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div v-bind:class="'col-md-2 mb-3 sales-tag'">
+                                <label for="validationCustom02">Unit Cost (£)</label>
+                                <input type="text" v-model="items.per_unit_cost" class="form-control border border-dark" id="validationCustom02" required>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div v-bind:class="'col-md-3 mb-3 sales-tag'">
+                                <label for="validationCustom03">Selling Price</label>
+
+                                <span id="validationCustom03" v-bind:class="span_selling_price">{{ selling_price }}</span>
+                                <div class="valid-feedback">
+                                    Looks good!
+                                </div>
+                            </div>
+                            <div v-bind:class="'col-md-3 mb-3 sales-tag'">
+                                <label for="right-panel-link"></label>
+                                <button id="right-panel-link" class="btn btn-primary" @click="save">Record Sale</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div v-if="sales_records.length > 0">
@@ -64,6 +73,7 @@ export default {
     name: 'CoffeeSales',
     data() {
         return {
+            products: {},
             span_selling_price: '',
             sales_records: {},
             product_id: 1,
@@ -79,10 +89,25 @@ export default {
         }
     },
     mounted() {
-        this.fetchAll()
+        this.fetchAll();
+        this.getProducts();
         this.getProductDetails();
     },
     methods: {
+        onChangeProduct() {
+            this.items.sale_quantity = '';
+            this.items.per_unit_cost = '';
+            this.items.selling_record = '';
+
+            this.getProductDetails();
+            this.fetchAll();
+        },
+        getProducts() {
+            axios.get(`products`)
+                .then((res) => {
+                    this.products = res.data;
+                });
+        },
         getProductDetails() {
             axios.get(`product/${this.product_id}`)
                 .then((res) => {
@@ -91,7 +116,7 @@ export default {
                 });
         },
         fetchAll() {
-            axios.get('api/sales_records')
+            axios.get(`api/sales_records/${this.product_id}`)
                 .then(res => this.sales_records = res.data)
         },
         save() {
@@ -99,12 +124,16 @@ export default {
                 if (this.items.selling_record > 0) {
                     const myInput = {
                         'quantity': this.items.sale_quantity,
+                        'product_id': this.product_id,
                         'unit_cost': this.items.per_unit_cost,
                         'record_sale': this.items.selling_record,
                     }
                     axios.post('api/sales_records', myInput)
                         .then((res) => {
                             alert(res.data.message);
+                            this.items.sale_quantity = '';
+                            this.items.per_unit_cost = '';
+                            this.items.selling_record = '';
                             this.fetchAll()
                         });
                 } else {
@@ -158,5 +187,14 @@ export default {
     .heading {
         padding-top: 20px;
         padding-bottom: 5px;
+    }
+
+    .card-wid {
+        width: 80%;
+    }
+
+    .form-select {
+        outline: none !important;
+        box-shadow: none !important;
     }
 </style>

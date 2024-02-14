@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sales_records', function (Blueprint $table) {
             $table->id();
             $table->integer('quantity');
+            $table->integer('product_id');
             $table->decimal('unit_cost', 6, 2);
             $table->decimal('record_sale', 8, 2);
             $table->timestamps();

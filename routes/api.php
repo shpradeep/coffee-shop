@@ -20,3 +20,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::apiResource('sales_records', SalesRecordsController::class);
+Route::get('/sales_records/{id}', [SalesRecordsController::class, 'show']);
